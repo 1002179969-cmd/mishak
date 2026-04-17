@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>הטיול ליער - משחק קריאה</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f9f4;
+      margin: 0;
+      padding: 0;
+      direction: rtl;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 18px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      color: #2f6b3d;
+      margin-bottom: 10px;
+    }
+
+    .instructions {
+      background: #eef8ee;
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      line-height: 1.8;
+    }
+
+    .word-box {
+      font-size: 28px;
+      font-weight: bold;
+      color: #1d4d2a;
+      background: #dff3df;
+      padding: 15px;
+      border-radius: 12px;
+      margin: 20px auto;
+      width: 250px;
+    }
+
+    .text-box {
+      text-align: right;
+      background: #fafafa;
+      padding: 20px;
+      border-radius: 12px;
+      line-height: 2;
+      border: 1px solid #ddd;
+      margin-bottom: 20px;
+    }
+
+    .highlight {
+      background: yellow;
+      font-weight: bold;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+
+    button {
+      background: #2f6b3d;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      margin: 8px;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #255730;
+    }
+
+    input {
+      padding: 10px;
+      width: 80%;
+      max-width: 400px;
+      border: 1px solid #bbb;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
+    .result {
+      margin-top: 15px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .score {
+      margin-top: 10px;
+      color: #333;
+      font-size: 18px;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌳 הטיול ליער - משחק קריאה והבנה 🌳</h1>
+
+    <div class="instructions">
+      <p><strong>איך משחקים?</strong></p>
+      <p>1. קוראים את המילה שמופיעה.</p>
+      <p>2. מחפשים אותה בטקסט.</p>
+      <p>3. כותבים משפט חדש עם המילה.</p>
+      <p>4. לוחצים על "בדקי תשובה".</p>
+    </div>
+
+    <div class="word-box" id="wordBox">יער</div>
+
+    <div class="text-box" id="storyText">
+      ביום שישי יצאנו כל תלמידי הכיתה לטיול ביער. מזג האוויר היה נעים והשמש זרחה בשמיים.
+      הלכנו בשביל ארוך בין עצים גבוהים וראינו פרחים צבעוניים.
+      במהלך הטיול שמענו ציוץ של ציפורים והתבוננו סביבנו בסקרנות.
+      המורה ביקשה מאיתנו לשים לב לפרטים קטנים בטבע, כמו עלים, אבנים וחרקים.
+      אחרי הליכה ארוכה עצרנו לנוח ליד עץ גדול.
+      אכלנו יחד, דיברנו וצחקנו.
+      הרגשנו שמחה והתרגשות מהחוויה המשותפת.
+      בסיום הטיול חזרנו לבית הספר עייפים אך מרוצים.
+      למדנו דברים חדשים על הטבע ונהנינו מאוד מהיום הזה.
+    </div>
+
+    <button onclick="highlightWord()">הדגישי את המילה בטקסט</button>
+    <button onclick="speakWord()">השמעת המילה</button>
+
+    <div style="margin-top:20px;">
+      <p><strong>כתבי משפט חדש עם המילה:</strong></p>
+      <input type="text" id="sentenceInput" placeholder="כתבי כאן משפט..." />
+    </div>
+
+    <div>
+      <button onclick="checkSentence()">בדקי תשובה</button>
+      <button onclick="nextWord()">למילה הבאה</button>
+      <button onclick="restartGame()">התחל מחדש</button>
+    </div>
+
+    <div class="result" id="result"></div>
+    <div class="score" id="score">ניקוד: 0</div>
+  </div>
+
+  <script>
+    const words = [
+      "יער",
+      "פרחים",
+      "ציפורים",
+      "טבע",
+      "שמחה",
+      "טיול",
+      "עצים",
+      "עייפים",
+      "מרוצים",
+      "שמש"
+    ];
+
+    let currentIndex = 0;
+    let score = 0;
+
+    const wordBox = document.getElementById("wordBox");
+    const storyText = document.getElementById("storyText");
+    const sentenceInput = document.getElementById("sentenceInput");
+    const result = document.getElementById("result");
+    const scoreBox = document.getElementById("score");
+
+    const originalText = storyText.innerText;
+
+    function updateWord() {
+      wordBox.innerText = words[currentIndex];
+      sentenceInput.value = "";
+      result.innerText = "";
+      storyText.innerHTML = originalText;
+    }
+
+    function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
+    function highlightWord() {
+      const currentWord = words[currentIndex];
+      const regex = new RegExp("(" + escapeRegExp(currentWord) + ")", "g");
+      storyText.innerHTML = originalText.replace(regex, '<span class="highlight">$1</span>');
+    }
+
+    function checkSentence() {
+      const currentWord = words[currentIndex];
+      const sentence = sentenceInput.value.trim();
+
+      if (sentence === "") {
+        result.style.color = "red";
+        result.innerText = "יש לכתוב משפט.";
+        return;
+      }
+
+      if (sentence.includes(currentWord)) {
+        result.style.color = "green";
+        result.innerText = "כל הכבוד! השתמשת נכון במילה.";
+        score += 10;
+      } else {
+        result.style.color = "orange";
+        result.innerText = "המשפט נכתב, אבל חסרה בו המילה: " + currentWord;
+      }
+
+      scoreBox.innerText = "ניקוד: " + score;
+    }
+
+    function nextWord() {
+      currentIndex++;
+      if (currentIndex >= words.length) {
+        wordBox.innerText = "סיימת!";
+        result.style.color = "blue";
+        result.innerText = "כל הכבוד! סיימת את המשחק.";
+        sentenceInput.value = "";
+        return;
+      }
+      updateWord();
+    }
+
+    function restartGame() {
+      currentIndex = 0;
+      score = 0;
+      scoreBox.innerText = "ניקוד: 0";
+      updateWord();
+    }
+
+    function speakWord() {
+      const utterance = new SpeechSynthesisUtterance(words[currentIndex]);
+      utterance.lang = "he-IL";
+      speechSynthesis.speak(utterance);
+    }
+
+    updateWord();
+  </script>
+</body>
+</html>
